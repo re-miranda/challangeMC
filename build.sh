@@ -1,2 +1,2 @@
 #!/bin/sh
-apk add gcc libc-dev make
+apk add gcc libc-dev make valgrind
