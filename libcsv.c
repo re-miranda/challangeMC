@@ -19,7 +19,7 @@ typedef struct t_header {
 # define MAX_SIZE 256
 
 void    processCsvLine(const char csvLine[]);
-size_t     processCsvColumns(const char csvLine[], s_header columns[]);
+size_t  processCsvColumns(const char csvLine[], s_header columns[]);
 
 void processCsv( const char csvData[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
     processCsvLine(csvData);
@@ -47,17 +47,20 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
         columns_size = processCsvColumns(line, columns);
-        if (columns_size < 1)
+        if (columns_size < 1) {
+            if (line)
+                free(line);
+            line = NULL;
             return ;
+        }
         readBytes = getline(&line, &len, stream);
     }
     while (readBytes > 0) {
         processCsvLine(line);
-        if (line)
-            free(line);
-        line = NULL;
         readBytes = getline(&line, &len, stream);
     }
+    if (line)
+        free(line);
     // (void)csvFilePath;
     (void)selectedColumns;
     (void)rowFilterDefinitions;
@@ -71,6 +74,7 @@ void    processCsvLine(const char csvLine[]) {
     if (!csvLine)
         return ;
     csvLineCopy = strdup(csvLine);
+    csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
     while (cell) {
         write(1, cell, strlen(cell));
@@ -89,6 +93,7 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[]) {
     if (!csvLine)
         return (-1);
     csvLineCopy = strdup(csvLine);
+    csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
     index = 0;
     while (cell) {
