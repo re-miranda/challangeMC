@@ -76,24 +76,32 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
 }
 
 void    processCsvLine(const char csvLine[]) {
-    char  *csvLineCopy;
-    char  *cell;
-    // size_t  headerIndex;
+    char    *csvLineCopy;
+    FILE    *outputLine;
+    char    *outputLinePtr;
+    size_t  outputLineLen;
+    char    *cell;
 
     if (!csvLine)
         return ;
     csvLineCopy = strdup(csvLine);
+    if (!csvLineCopy)
+        return ;
+    outputLine = open_memstream(&outputLinePtr, &outputLineLen);
+    if (!outputLine)
+        return ;
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
-    // headerIndex = 1;
     while (cell) {
-        // if (assertSelectedHeader(headerIndex, params))
-        //     if (assertFilter())
-        //         processCell(cell);
-        write(1, cell, strlen(cell));
-        write(1, &" | ", 3);
+        fputs(cell, outputLine);
+        fputs(" ", outputLine);
         cell  = strtok(NULL, ",");
     }
+    fclose(outputLine);
+    free(csvLineCopy);
+    if (!cell)
+        write(1, outputLinePtr, strlen(outputLinePtr));
+    free(outputLinePtr);
     write(1, &"\n", 1);
     return ;
 }
