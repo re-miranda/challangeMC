@@ -22,7 +22,15 @@ void    processCsvLine(const char csvLine[]);
 size_t  processCsvColumns(const char csvLine[], s_header columns[]);
 
 void processCsv( const char csvData[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
-    processCsvLine(csvData);
+    FILE    *tmp_file;
+
+    tmp_file = fopen("./tmp", "w+");
+    if ( tmp_file == NULL )
+        return ;
+    fputs(csvData, tmp_file);
+    fseek(tmp_file, 0, SEEK_SET);
+    processCsvFile("./tmp", selectedColumns, rowFilterDefinitions);
+    remove("./tmp");
     (void)selectedColumns;
     (void)rowFilterDefinitions;
     return ;
@@ -70,13 +78,18 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
 void    processCsvLine(const char csvLine[]) {
     char  *csvLineCopy;
     char  *cell;
+    // size_t  headerIndex;
 
     if (!csvLine)
         return ;
     csvLineCopy = strdup(csvLine);
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
+    // headerIndex = 1;
     while (cell) {
+        // if (assertSelectedHeader(headerIndex, params))
+        //     if (assertFilter())
+        //         processCell(cell);
         write(1, cell, strlen(cell));
         write(1, &" | ", 3);
         cell  = strtok(NULL, ",");
