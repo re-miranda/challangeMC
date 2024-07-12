@@ -31,6 +31,7 @@ void processCsv( const char csvData[], const char selectedColumns[], const char 
     fseek(tmp_file, 0, SEEK_SET);
     processCsvFile("./tmp", selectedColumns, rowFilterDefinitions);
     remove("./tmp");
+    fclose(tmp_file);
     (void)selectedColumns;
     (void)rowFilterDefinitions;
     return ;
@@ -69,6 +70,10 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
     }
     if (line)
         free(line);
+    for (size_t in = 0; in < columns_size; ++in) {
+        free(columns[in].name);
+    }
+    fclose(stream);
     // (void)csvFilePath;
     (void)selectedColumns;
     (void)rowFilterDefinitions;
@@ -114,6 +119,8 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[]) {
     if (!csvLine)
         return (-1);
     csvLineCopy = strdup(csvLine);
+    if (!csvLineCopy)
+        return (-1);
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
     index = 0;
@@ -125,5 +132,6 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[]) {
         index++;
         cell  = strtok(NULL, ",");
     }
+    free(csvLineCopy);
     return (index);
 }
