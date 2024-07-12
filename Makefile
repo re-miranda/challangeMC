@@ -8,14 +8,18 @@ INCLUDE = libcsv.h
 TEST_INCLUDE = unitTest.h $(INCLUDE)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 RM = rm -rf
 
-all:
-	@echo "todo"
+all: test
 
-test: $(TEST_NAME)
+test: clean $(TEST_NAME)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(TEST_NAME)
+
+sanitize: clean
+	$(CC) $(CFLAGS) -fsanitize=address -o $(TEST_NAME) $(TEST_SRC)
 	./$(TEST_NAME)
+
 
 $(TEST_NAME): $(TEST_SRC) $(INCLUDE)
 	$(CC) $(CFLAGS) -o $(TEST_NAME) $(TEST_SRC)
