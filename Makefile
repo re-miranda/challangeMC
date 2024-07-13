@@ -1,10 +1,10 @@
 NAME = libcsv.so
 TEST_NAME = unitTest.out
 
-SRC = libcsv.c
+SRC = libcsv.c helper.c
 TEST_SRC = unitTest.c $(SRC)
 
-INCLUDE = libcsv.h
+INCLUDE = libcsv.h helper.h
 TEST_INCLUDE = unitTest.h $(INCLUDE)
 
 CC = gcc

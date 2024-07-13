@@ -1,25 +1,8 @@
 #include "libcsv.h"
-#include <stddef.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "helper.h"
 
-typedef struct t_filter {
-    char            operator;
-    int             comparisson_value;
-    struct t_filter *next_filter;
-} s_filter;
-
-typedef struct t_header {
-    char        *name;
-    s_filter    *filter;
-} s_header;
-
-# define MAX_SIZE 256
-
-void    processCsvLine(const char csvLine[]);
-size_t  processCsvColumns(const char csvLine[], s_header columns[]);
+void    processCsvLine( const char csvLine[], s_header columns[]);
+size_t  processCsvColumns( const char csvLine[], s_header columns[], const char selectedColumns[]);
 
 void processCsv( const char csvData[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
     FILE    *tmp_file;
@@ -30,15 +13,14 @@ void processCsv( const char csvData[], const char selectedColumns[], const char 
     fputs(csvData, tmp_file);
     fseek(tmp_file, 0, SEEK_SET);
     processCsvFile("./tmp", selectedColumns, rowFilterDefinitions);
-    remove("./tmp");
     fclose(tmp_file);
-    (void)selectedColumns;
-    (void)rowFilterDefinitions;
+    remove("./tmp");
     return ;
 }
 
 void processCsvFile( const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
     FILE    *stream;
+
     char    *line;
     size_t  len;
     ssize_t readBytes;
@@ -51,41 +33,39 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
         write(1, &"Failed to open file\n", 20);
         return ;
     }
+
     line = NULL;
     len = 0;
+
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
-        columns_size = processCsvColumns(line, columns);
-        if (columns_size < 1) {
-            if (line)
-                free(line);
-            line = NULL;
-            return ;
+        columns_size = processCsvColumns(line, columns, selectedColumns);
+        if (columns_size > 0) {
+            getRowFilterDefinitions(columns, rowFilterDefinitions);
+            readBytes = getline(&line, &len, stream);
+            write(1, &"output:\n", 8);
+            while (readBytes > 0) {
+                processCsvLine(line, columns);
+                readBytes = getline(&line, &len, stream);
+            }
         }
-        readBytes = getline(&line, &len, stream);
-    }
-    while (readBytes > 0) {
-        processCsvLine(line);
-        readBytes = getline(&line, &len, stream);
+        for (size_t in = 0; in < columns_size; ++in) {
+            free(columns[in].name);
+        }
     }
     if (line)
         free(line);
-    for (size_t in = 0; in < columns_size; ++in) {
-        free(columns[in].name);
-    }
     fclose(stream);
-    // (void)csvFilePath;
-    (void)selectedColumns;
-    (void)rowFilterDefinitions;
     return ;
 }
 
-void    processCsvLine(const char csvLine[]) {
+void    processCsvLine( const char csvLine[], s_header columns[]) {
     char    *csvLineCopy;
     FILE    *outputLine;
     char    *outputLinePtr;
     size_t  outputLineLen;
     char    *cell;
+    size_t  headerIndex;
 
     if (!csvLine)
         return ;
@@ -97,21 +77,32 @@ void    processCsvLine(const char csvLine[]) {
         return ;
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
+    headerIndex = 0;
     while (cell) {
-        fputs(cell, outputLine);
-        fputs(" ", outputLine);
+        if ( columns[headerIndex].selected == 1 ) {
+            if ( !assertFilterAllows(cell, columns[headerIndex].filter) )
+                break ;
+            if (headerIndex != 0)
+                fputs(",", outputLine);
+            fputs(cell, outputLine);
+        }
         cell  = strtok(NULL, ",");
+        ++headerIndex;
     }
     fclose(outputLine);
     free(csvLineCopy);
-    if (!cell)
-        write(1, outputLinePtr, strlen(outputLinePtr));
+    if (!cell){
+        if (outputLinePtr[0] != 0) {
+            write(1, outputLinePtr, strlen(outputLinePtr));
+            write(1, &"\n", 1);
+        }
+    } else
+        free(cell);
     free(outputLinePtr);
-    write(1, &"\n", 1);
     return ;
 }
 
-size_t    processCsvColumns(const char csvLine[], s_header columns[]) {
+size_t    processCsvColumns(const char csvLine[], s_header columns[], const char selectedColumns[]) {
     char  *csvLineCopy;
     char  *cell;
     size_t  index;
@@ -126,12 +117,17 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[]) {
     index = 0;
     while (cell) {
         if (index >= MAX_SIZE)
-            return (-2);
+            break ;
         columns[index].name = strdup(cell);
+        columns[index].selected = assertIsSelectedHeader(cell, selectedColumns);
         columns[index].filter = NULL;
         index++;
         cell  = strtok(NULL, ",");
     }
     free(csvLineCopy);
+    if ( cell ) {
+        free(cell);
+        return (-3);
+    }
     return (index);
 }
