@@ -36,6 +36,7 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
 
     line = NULL;
     len = 0;
+    memset(columns, 0, sizeof(columns));
 
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
