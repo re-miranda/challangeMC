@@ -9,10 +9,10 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
 }
 
 int assertIsSelectedHeader( const char header[], const char selectedColumns[] ) {
-    // if (strstr(selectedColumns, header) == NULL)
-    //     return (0);
-    (void)header;
-    (void)selectedColumns;
+    if (selectedColumns == NULL)
+        return (0);
+    if (strstr(selectedColumns, header) == NULL)
+        return (0);
     return (1);
 }
 
