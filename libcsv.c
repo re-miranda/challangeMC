@@ -66,6 +66,7 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     size_t  outputLineLen;
     char    *cell;
     size_t  headerIndex;
+    int     first_run_flag;
 
     if (!csvLine)
         return ;
@@ -78,12 +79,14 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok(csvLineCopy, ",");
     headerIndex = 0;
+    first_run_flag = 1;
     while (cell) {
         if ( columns[headerIndex].selected == 1 ) {
             if ( !assertFilterAllows(cell, columns[headerIndex].filter) )
                 break ;
-            if (headerIndex != 0)
+            if (!first_run_flag)
                 fputs(",", outputLine);
+            first_run_flag = 0;
             fputs(cell, outputLine);
         }
         cell  = strtok(NULL, ",");
