@@ -86,7 +86,6 @@ int assertFilterAllows( const char cell[], char const filter[]) {
             if (cmpResult != 0)
                 return (0);
         } else if (*singleFilter == '>') {
-            printf("'%c'(%i)", '>', cmpResult);
             if (cmpResult <= 0)
                 return (0);
         } else if (*singleFilter == '<') {

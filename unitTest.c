@@ -31,5 +31,8 @@ int main(void) {
     const char csv[] = "header1,header2,header3\n1,2,3\n4,5,6\n7,8,9";
     printf("Should be: \"header1,header3 \\n 4,6\"\n");
     processCsv(csv, "header1,header3", "header1>1\nheader3<8");
+
+    const char csv_file[] = "example.csv";
+    processCsvFile(csv_file, "header1,header3", "header1>1\nheader3<8");
     return (0);
 }
