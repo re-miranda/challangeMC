@@ -1,10 +1,51 @@
 #include "helper.h"
 
 void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefinitions[]) {
-    for ( s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
-        inColumn->filter = NULL;
+    char    *searchResult;
+    char    *rowFilterDefinitionsCopy;
+    char    *cell;
+    int     found_flag;
+
+    FILE    *outputLine;
+    size_t  outputLineLen;
+    char    *previus_value;
+
+
+    if (rowFilterDefinitions == NULL)
+        return ;
+    rowFilterDefinitionsCopy = strdup(rowFilterDefinitions);
+    if (rowFilterDefinitionsCopy == NULL)
+        return ;
+    cell  = strtok(rowFilterDefinitionsCopy, "\n");
+    while (cell) {
+        found_flag = 0;
+        for ( s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
+            searchResult = strstr(cell, inColumn->name);
+            if (searchResult != NULL \
+                && strchr("=><", *(searchResult + strlen(inColumn->name))) != NULL) {
+                previus_value = inColumn->filter;
+                inColumn->filter = NULL;
+                outputLineLen = 0;
+                outputLine = open_memstream(&inColumn->filter, &outputLineLen);
+                if (previus_value) {
+                    fputs(previus_value, outputLine);
+                    free(previus_value);
+                }
+                fprintf(outputLine, "%s,", cell + strlen(inColumn->name));
+                fclose(outputLine);
+                found_flag = 1;
+                break ;
+            }
+        }
+        if (found_flag == 0) {
+            write(2, &"Invalid filter: ", 16);
+            write(2, cell, strlen(cell));
+            write(2, &"\n", 1);
+
+        }
+        cell  = strtok(NULL, "\n");
     }
-    (void)rowFilterDefinitions;
+    free(rowFilterDefinitionsCopy);
     return ;
 }
 
@@ -25,15 +66,35 @@ int assertIsSelectedHeader( const char header[], const char selectedColumns[] ) 
     return (1);
 }
 
-int assertFilterAllows( const char cell[], s_filter filter[]) {
-    int         allow_flag;
+int assertFilterAllows( const char cell[], char const filter[]) {
+    char        *filterCopy;
+    char        *filterContextPtr;
+    char        *singleFilter;
+    int         cmpResult;
 
     if (filter == NULL)
         return (1);
-    allow_flag = 1;
-    while (filter != NULL) {
-        (void)cell;
-        filter = filter->next_filter;
+    filterCopy = strdup(filter);
+    if (filterCopy == NULL)
+        return (1);
+    filterContextPtr = filterCopy;
+    singleFilter  = strtok_r(filterCopy, ",", &filterContextPtr);
+    (void)cell;
+    while (singleFilter) {
+        cmpResult = strcmp(cell, singleFilter + 1);
+        if (*singleFilter == '=') {
+            if (cmpResult != 0)
+                return (0);
+        } else if (*singleFilter == '>') {
+            printf("'%c'(%i)", '>', cmpResult);
+            if (cmpResult <= 0)
+                return (0);
+        } else if (*singleFilter == '<') {
+            if (cmpResult >= 0)
+                return (0);
+        }
+        singleFilter = strtok_r(NULL, ",", &filterContextPtr);
     }
-    return (allow_flag);
+    free(filterCopy);
+    return (1);
 }

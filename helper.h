@@ -8,16 +8,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct t_filter {
-    const char      *operator;
-    const char      *comparisson_value;
-    struct t_filter *next_filter;
-} s_filter;
-
 typedef struct t_header {
     char        *name;
     int         selected;
-    s_filter    *filter;
+    char        *filter;
 } s_header;
 
 # define MAX_SIZE 256
@@ -26,6 +20,6 @@ void    getRowFilterDefinitions(s_header columns[], const char rowFilterDefiniti
 
 int     assertIsSelectedHeader( const char header[], const char selectedColumns[] );
 
-int     assertFilterAllows( const char cell[], s_filter filter[]);
+int     assertFilterAllows( const char cell[], char const filter[]);
 
 #endif
