@@ -46,7 +46,8 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
             readBytes = getline(&line, &len, stream);
             printf("output:\n");
             for (size_t in = 0; in < columns_size; ++in)
-                printf("%s ", columns[in].name);
+                if (columns[in].selected == 1)
+                    printf("%s ", columns[in].name);
             printf("\n");
             while (readBytes > 0) {
                 processCsvLine(line, columns);
@@ -99,11 +100,9 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
             first_run_flag = 0;
             fputs(cell, outputLine);
         }
-        printf("%s(%i) ", cell, discart_flag);
         cell  = strtok_r(NULL, ",", &csvLineCopyContextPtr);
         ++headerIndex;
     }
-    printf("\n");
     fclose(outputLine);
     if (!discart_flag)
         if (outputLinePtr[0] != 0)
