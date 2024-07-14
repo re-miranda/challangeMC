@@ -28,11 +28,22 @@ int main(void) {
     // processCsvFile("data.csv", selHeaders, selfilterWrong);
     // processCsv(line, selHeaders, selfilterWrong);
 
+
+    printf("\nShould be: \"header1,header3 \\n 4,6\"\n");
+
     const char csv[] = "header1,header2,header3\n1,2,3\n4,5,6\n7,8,9";
-    printf("Should be: \"header1,header3 \\n 4,6\"\n");
     processCsv(csv, "header1,header3", "header1>1\nheader3<8");
 
     const char csv_file[] = "example.csv";
     processCsvFile(csv_file, "header1,header3", "header1>1\nheader3<8");
+
+
+    printf("\nShould be: \"header1,header3,header4 \\n 4,6\"\n");
+
+    const char csv2[] = "header1,header2,header3,header4\n1,2,3,4\n5,6,7,8\n9,10,11,12";
+    processCsv(csv2, "header1,header3,header4", "header1>1\nheader3<10");
+
+    const char csv_file2[] = "example2.csv";
+    processCsvFile(csv_file2, "header1,header3,header4", "header1>1\nheader3<10");
     return (0);
 }
