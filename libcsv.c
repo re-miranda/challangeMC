@@ -25,6 +25,7 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
     size_t  len;
     ssize_t readBytes;
 
+    int         first_output_flag;
     s_header    columns[MAX_SIZE];
     size_t      columns_size;
 
@@ -37,17 +38,21 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
     line = NULL;
     len = 0;
     memset(columns, 0, sizeof(columns));
-
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
         columns_size = processCsvColumns(line, columns, selectedColumns);
         if (columns_size > 0) {
             getRowFilterDefinitions(columns, rowFilterDefinitions);
             readBytes = getline(&line, &len, stream);
-            printf("output:\n");
-            for (size_t in = 0; in < columns_size; ++in)
-                if (columns[in].selected == 1)
-                    printf("%s ", columns[in].name);
+            first_output_flag = 1;
+            for (size_t in = 0; in < columns_size; ++in) {
+                if (columns[in].selected == 1) {
+                    if (first_output_flag != 1)
+                        printf(",");
+                    printf("%s", columns[in].name);
+                    first_output_flag = 0;
+                }
+            }
             printf("\n");
             while (readBytes > 0) {
                 processCsvLine(line, columns);
