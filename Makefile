@@ -18,6 +18,7 @@ $(NAME): $(SRC) $(INCLUDE)
 
 test: clean $(TEST_NAME)
 	valgrind --leak-check=full --show-leak-kinds=all ./$(TEST_NAME)
+	$(RM) $(TEST_NAME)
 	$(CC) $(CFLAGS) -fsanitize=address -o $(TEST_NAME) $(TEST_SRC)
 	./$(TEST_NAME)
 	$(RM) $(TEST_NAME)
