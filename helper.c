@@ -124,7 +124,8 @@ void    outputColumns(s_header columns[], size_t columnsSize) {
             firstOutputFlag = 0;
         }
     }
-    printf("\n");
+    if (firstOutputFlag != 1)
+        printf("\n");
     return ;
 }
 
