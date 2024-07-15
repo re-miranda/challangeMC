@@ -29,8 +29,7 @@ int parseInputs(s_header const columns[], char const selectedColumns[], char con
             }
             token = strtok_r(NULL, ",", &contextPtr);
         }
-        if (copy)
-            free(copy);
+        free(copy);
     }
     if (rowFilterDefinitions != NULL && abortFlag == 0) {
         copy = strdup(rowFilterDefinitions);
@@ -54,8 +53,7 @@ int parseInputs(s_header const columns[], char const selectedColumns[], char con
             }
             token = strtok_r(NULL, "\n", &contextPtr);
         }
-        if (copy)
-            free(copy);
+        free(copy);
     }
     return (!abortFlag);
 }
@@ -101,12 +99,8 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     if (!discartFlag)
         if (outputLinePtr[0] != 0)
             printf("%s\n", outputLinePtr);
-    if (cell)
-        free(cell);
-    if (outputLinePtr)
-        free(outputLinePtr);
-    if (csvLineCopy)
-        free(csvLineCopy);
+    free(outputLinePtr);
+    free(csvLineCopy);
     return ;
 }
 
@@ -135,10 +129,8 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[], const char
         cell  = strtok_r(NULL, ",", &contextPtr);
     }
     free(csvLineCopy);
-    if (cell) {
-        free(cell);
+    if (index >= MAX_SIZE)
         return (-3);
-    }
     return (index);
 }
 
@@ -186,8 +178,7 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
         }
         cell = strtok_r(NULL, "\n", &contextPtr);
     }
-    if (rowFilterDefinitionsCopy)
-        free(rowFilterDefinitionsCopy);
+    free(rowFilterDefinitionsCopy);
     return ;
 }
 
@@ -224,7 +215,6 @@ int assertFilterAllows( const char cell[], char const filter[]) {
         return (1);
     contextPtr = filterCopy;
     singleFilter  = strtok_r(filterCopy, ",", &contextPtr);
-    (void)cell;
     while (singleFilter) {
         cmpResult = strcmp(cell, singleFilter + 1);
         cmpResult2 = strcmp(cell, singleFilter + 2);
@@ -249,8 +239,7 @@ int assertFilterAllows( const char cell[], char const filter[]) {
         }
         singleFilter = strtok_r(NULL, ",", &contextPtr);
     }
-    if (filterCopy)
-        free(filterCopy);
+    free(filterCopy);
     return (allowFlag);
 }
 
