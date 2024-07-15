@@ -44,5 +44,11 @@ int main(void) {
 
     const char csv_file2[] = "example2.csv";
     processCsvFile(csv_file2, "header1,header3,header4", "header1>1\nheader3<10");
+
+
+    printf("\nShould be: \"header1,header2,header3,header4\\n\"\n");
+
+    processCsvFile(csv_file2, "", "header1>1\nheader3<10");
+    processCsvFile(csv_file2, NULL, "header1>1\nheader3<10");
     return (0);
 }
