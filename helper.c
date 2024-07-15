@@ -3,6 +3,7 @@
 void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefinitions[]) {
     char    *searchResult;
     char    *rowFilterDefinitionsCopy;
+    char    *contextPtr;
     char    *cell;
     int     foundFlag;
     FILE    *outputLine;
@@ -14,7 +15,8 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
     rowFilterDefinitionsCopy = strdup(rowFilterDefinitions);
     if (rowFilterDefinitionsCopy == NULL)
         return ;
-    cell = strtok(rowFilterDefinitionsCopy, "\n");
+    contextPtr = rowFilterDefinitionsCopy;
+    cell = strtok_r(rowFilterDefinitionsCopy, "\n", &contextPtr);
     while (cell) {
         foundFlag = 0;
         for (s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
@@ -40,7 +42,7 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
             write(2, cell, strlen(cell));
             write(2, &"\n", 1);
         }
-        cell = strtok(NULL, "\n");
+        cell = strtok_r(NULL, "\n", &contextPtr);
     }
     if (rowFilterDefinitionsCopy)
         free(rowFilterDefinitionsCopy);
