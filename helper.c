@@ -68,7 +68,7 @@ int assertIsSelectedHeader( const char header[], const char selectedColumns[] ) 
 
 int assertFilterAllows( const char cell[], char const filter[]) {
     char        *filterCopy;
-    char        *filterContextPtr;
+    char        *contextPtr;
     char        *singleFilter;
     int         cmpResult;
     int         allowFlag;
@@ -79,8 +79,8 @@ int assertFilterAllows( const char cell[], char const filter[]) {
     filterCopy = strdup(filter);
     if (filterCopy == NULL)
         return (1);
-    filterContextPtr = filterCopy;
-    singleFilter  = strtok_r(filterCopy, ",", &filterContextPtr);
+    contextPtr = filterCopy;
+    singleFilter  = strtok_r(filterCopy, ",", &contextPtr);
     (void)cell;
     while (singleFilter) {
         cmpResult = strcmp(cell, singleFilter + 1);
@@ -94,7 +94,7 @@ int assertFilterAllows( const char cell[], char const filter[]) {
             if (cmpResult >= 0)
                 allowFlag = 0;
         }
-        singleFilter = strtok_r(NULL, ",", &filterContextPtr);
+        singleFilter = strtok_r(NULL, ",", &contextPtr);
     }
     if (filterCopy)
         free(filterCopy);

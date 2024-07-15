@@ -54,7 +54,7 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     char    *csvLineCopy;
     FILE    *outputLine;
     char    *outputLinePtr;
-    char    *csvLineCopyContextPtr;
+    char    *contextPtr;
     size_t  outputLineLen;
     char    *cell;
     size_t  headerIndex;
@@ -66,12 +66,12 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     csvLineCopy = strdup(csvLine);
     if (!csvLineCopy)
         return ;
-    csvLineCopyContextPtr = csvLineCopy;
+    contextPtr = csvLineCopy;
     outputLine = open_memstream(&outputLinePtr, &outputLineLen);
     if (!outputLine)
         return ;
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
-    cell  = strtok_r(csvLineCopy, ",", &csvLineCopyContextPtr);
+    cell  = strtok_r(csvLineCopy, ",", &contextPtr);
     headerIndex = 0;
     firstRunFlag = 1;
     discartFlag = 0;
@@ -84,7 +84,7 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
             firstRunFlag = 0;
             fputs(cell, outputLine);
         }
-        cell  = strtok_r(NULL, ",", &csvLineCopyContextPtr);
+        cell  = strtok_r(NULL, ",", &contextPtr);
         ++headerIndex;
     }
     fclose(outputLine);
