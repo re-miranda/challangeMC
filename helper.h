@@ -16,6 +16,8 @@ typedef struct t_header {
 
 # define MAX_SIZE 256
 
+int     parseInputs(s_header const columns[], char const selectedColumns[], char const rowFilterDefinitions[]);
+
 void    processCsvLine( const char csvLine[], s_header columns[]);
 
 size_t  processCsvColumns( const char csvLine[], s_header columns[], const char selectedColumns[]);

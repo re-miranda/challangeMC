@@ -33,7 +33,7 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
         columnsSize = processCsvColumns(line, columns, selectedColumns);
-        if (columnsSize > 0) {
+        if (columnsSize > 0 && parseInputs(columns, selectedColumns, rowFilterDefinitions)) {
             getRowFilterDefinitions(columns, rowFilterDefinitions);
             readBytes = getline(&line, &len, stream);
             outputColumns(columns, columnsSize);
@@ -48,6 +48,66 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
         free(line);
     fclose(stream);
     return ;
+}
+
+int parseInputs(s_header const columns[], char const selectedColumns[], char const rowFilterDefinitions[]) {
+    char    *copy;
+    char    *contextPtr;
+    char    *token;
+    int     abortFlag;
+
+    abortFlag = 0;
+    if (selectedColumns != NULL) {
+        copy = strdup(selectedColumns);
+        if (copy == NULL)
+            return (0);
+        contextPtr = copy;
+        token = strtok_r(copy, ",", &contextPtr);
+        while (token && abortFlag == 0) {
+            abortFlag = 1;
+            for (s_header *inColumn = (s_header *)columns; inColumn->name != NULL; ++inColumn ) {
+                if (strcmp(token, inColumn->name) == 0 \
+                    && 1) {
+                    abortFlag = 0;
+                    break ;
+                }
+            }
+            if (abortFlag == 1) {
+                write(2, &"Header '", 8);
+                write(2, token, strlen(token));
+                write(2, &"' not found in CSV file/string\n", 32);
+            }
+            token = strtok_r(NULL, ",", &contextPtr);
+        }
+        if (copy)
+            free(copy);
+    }
+    if (rowFilterDefinitions != NULL && abortFlag == 0) {
+        copy = strdup(rowFilterDefinitions);
+        if (copy == NULL)
+            return (0);
+        contextPtr = copy;
+        token = strtok_r(copy, "\n", &contextPtr);
+        while (token && abortFlag == 0) {
+            abortFlag = 1;
+            for (s_header *inColumn = (s_header *)columns; inColumn->name != NULL; ++inColumn ) {
+                if (strstr(token, inColumn->name) == token \
+                    && strchr("=!<>", token[strlen(inColumn->name)]) != NULL) {
+                    abortFlag = 0;
+                    break ;
+                }
+            }
+            if (abortFlag == 1) {
+                write(2, &"Header '", 8);
+                write(2, token, strlen(token));
+                write(2, &"' not found in CSV file/string\n", 32);
+            }
+            token = strtok_r(NULL, "\n", &contextPtr);
+        }
+        if (copy)
+            free(copy);
+    }
+    return (!abortFlag);
 }
 
 void    processCsvLine( const char csvLine[], s_header columns[]) {
