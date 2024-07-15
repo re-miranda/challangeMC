@@ -1,5 +1,4 @@
 #include "unitTest.h"
-#include <stdio.h>
 
 int main(void) {
     // const char  line[] = "col1,col2,col3,col4,col5,col6,col7\nl1c1,l1c2,l1c3,l1c4,l1c5,l1c6,l1c7\nl1c1,l1c2,l1c3,l1c4,l1c5,l1c6,l1c7\nl2c1,l2c2,l2c3,l2c4,l2c5,l2c6,l2c7\nl3c1,l3c2,l3c3,l3c4,l3c5,l3c6,l3c7\n";
@@ -29,7 +28,7 @@ int main(void) {
     // processCsv(line, selHeaders, selfilterWrong);
 
 
-    printf("\nShould be: \"header1,header3 \\n 4,6\"\n");
+    printf("\nShould be: \"header1,header3\\n4,6\"\n");
 
     const char csv[] = "header1,header2,header3\n1,2,3\n4,5,6\n7,8,9";
     processCsv(csv, "header1,header3", "header1>1\nheader3<8");
@@ -38,7 +37,7 @@ int main(void) {
     processCsvFile(csv_file, "header1,header3", "header1>1\nheader3<8");
 
 
-    printf("\nShould be: \"header1,header3,header4 \\n 4,6\"\n");
+    printf("\nShould be: \"header1,header3,header4\\n\"\n");
 
     const char csv2[] = "header1,header2,header3,header4\n1,2,3,4\n5,6,7,8\n9,10,11,12";
     processCsv(csv2, "header1,header3,header4", "header1>1\nheader3<10");

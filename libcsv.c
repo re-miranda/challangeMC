@@ -1,9 +1,6 @@
 #include "libcsv.h"
 #include "helper.h"
 
-void    processCsvLine( const char csvLine[], s_header columns[]);
-size_t  processCsvColumns( const char csvLine[], s_header columns[], const char selectedColumns[]);
-
 void processCsv( const char csvData[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
     FILE    *tmp_file;
 

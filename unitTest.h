@@ -3,5 +3,6 @@
 
 # include "libcsv.h"
 # include <stddef.h>
+# include <stdio.h>
 
 #endif

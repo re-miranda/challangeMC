@@ -1,3 +1,3 @@
 #!/bin/sh
 apk add gcc libc-dev
-gcc -Wall -Wextra -Werror -o unitTest.out unitTest.c libcsv.c
+gcc -Wall -Wextra -Werror -shared -o libcsv.so libcsv.c helper.c
