@@ -2,10 +2,10 @@ NAME = libcsv.so
 TEST_NAME = unitTest
 
 SRC = libcsv.c helper.c
-TEST_SRC = unitTest.c $(SRC)
+TEST_SRC = unitTest.c
 
 INCLUDE = libcsv.h helper.h
-TEST_INCLUDE = unitTest.h $(INCLUDE)
+TEST_INCLUDE = unitTest.h
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
@@ -19,12 +19,12 @@ $(NAME): $(SRC) $(INCLUDE)
 test: clean $(TEST_NAME)
 	valgrind --leak-check=full --show-leak-kinds=all ./$(TEST_NAME)
 	$(RM) $(TEST_NAME)
-	$(CC) $(CFLAGS) -fsanitize=address -o $(TEST_NAME) $(TEST_SRC)
+	$(CC) $(CFLAGS) -fsanitize=address -o $(TEST_NAME) $(TEST_SRC) $(NAME) -Wl,-rpath=$$(pwd)
 	./$(TEST_NAME)
 	$(RM) $(TEST_NAME)
 
 $(TEST_NAME): $(NAME) $(TEST_SRC) $(INCLUDE)
-	$(CC) $(CFLAGS) -o $(TEST_NAME) $(TEST_SRC) $(NAME) -Wl, -rpath =$(pwd)
+	$(CC) $(CFLAGS) -o $(TEST_NAME) $(TEST_SRC) $(NAME) -Wl,-rpath=$$(pwd)
 
 clean:
 	$(RM) $(TEST_NAME)
