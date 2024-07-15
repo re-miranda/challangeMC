@@ -6,8 +6,9 @@ int main(void) {
     const char  selHeadersWrong[] = "ol2,col,xcol4,col6x";
     const char  selfilter[] = "col2>1\ncol3>1\ncol4>1\ncol6<3\ncol3>1";
     const char  selfilterWrong[] = "col2>1\ncol3>1\ncol4>1\ncol6x3";
+    const char  selfilterWrong2[] = "co2>1\ncold3>1\ncol4>1\ncol6x3";
 
-    printf("\nShould be: error\n");
+    printf("Should be: error\n");
     processCsvFile("data.csverror", NULL, NULL);
     printf("\nShould be: only csv char\n");
     processCsvFile("data.csv", NULL, NULL);
@@ -33,6 +34,11 @@ int main(void) {
     processCsvFile("data.csv", selHeaders, selfilterWrong);
     printf("\nShould be: csv file full params wrong filter\n");
     processCsv(line, selHeaders, selfilterWrong);
+
+    printf("\nShould be: csv char full params wrong filter2\n");
+    processCsvFile("data.csv", selHeaders, selfilterWrong2);
+    printf("\nShould be: csv file full params wrong filter2\n");
+    processCsv(line, selHeaders, selfilterWrong2);
 
 
     printf("\nShould be: \"header1,header3\\n4,6\"\n");
