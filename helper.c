@@ -22,7 +22,7 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
         for (s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
             searchResult = strstr(cell, inColumn->name);
             if (searchResult != NULL \
-                && strchr("=><", *(searchResult + strlen(inColumn->name))) != NULL) {
+                && assertFilterOperatorIsValid(searchResult + strlen(inColumn->name))) {
                 previusValue = inColumn->filter;
                 inColumn->filter = NULL;
                 outputLineLen = 0;
@@ -71,6 +71,7 @@ int assertFilterAllows( const char cell[], char const filter[]) {
     char        *contextPtr;
     char        *singleFilter;
     int         cmpResult;
+    int         cmpResult2;
     int         allowFlag;
 
     allowFlag = 1;
@@ -84,13 +85,23 @@ int assertFilterAllows( const char cell[], char const filter[]) {
     (void)cell;
     while (singleFilter) {
         cmpResult = strcmp(cell, singleFilter + 1);
-        if (*singleFilter == '=') {
+        cmpResult2 = strcmp(cell, singleFilter + 2);
+        if (singleFilter[0] == '=') {
             if (cmpResult != 0)
                 allowFlag = 0;
-        } else if (*singleFilter == '>') {
+        } else if (singleFilter[0] == '!' && singleFilter[1] == '=') {
+            if (cmpResult2 == 0)
+                allowFlag = 0;
+        } else if (singleFilter[0] == '>' && singleFilter[1] == '=') {
+            if (cmpResult2 < 0)
+                allowFlag = 0;
+        } else if (singleFilter[0] == '>') {
             if (cmpResult <= 0)
                 allowFlag = 0;
-        } else if (*singleFilter == '<') {
+        } else if (singleFilter[0] == '<' && singleFilter[1] == '=') {
+            if (cmpResult2 > 0)
+                allowFlag = 0;
+        } else if (singleFilter[0] == '<') {
             if (cmpResult >= 0)
                 allowFlag = 0;
         }
@@ -125,4 +136,12 @@ void    freeColumns(s_header columns[], size_t columnsSize) {
             free(columns[in].filter);
     }
     return ;
+}
+
+int assertFilterOperatorIsValid(char filterTail[]) {
+    if (strchr("=><", *filterTail) == NULL)
+        return (1);
+    else if (strncmp("!=", filterTail, 2) != 0)
+        return (1);
+    return (0);
 }

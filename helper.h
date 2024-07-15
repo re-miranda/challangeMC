@@ -30,4 +30,6 @@ void    outputColumns(s_header columns[], size_t columnsSize);
 
 void    freeColumns(s_header columns[], size_t columnsSize);
 
+int     assertFilterOperatorIsValid(char filterTail[]);
+
 #endif
