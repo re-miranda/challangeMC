@@ -17,18 +17,17 @@ void processCsv( const char csvData[], const char selectedColumns[], const char 
 
 void processCsvFile( const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
     FILE    *stream;
-    char    *line;
-    size_t  len;
-    ssize_t readBytes;
-    s_header    columns[MAX_SIZE];
-    size_t      columnsSize;
-
     stream = fopen(csvFilePath, "r");
     if (stream == NULL) {
         return ;
     }
-    line = NULL;
-    len = 0;
+
+    char    *line = NULL;
+    size_t  len = 0;
+    ssize_t readBytes;
+    s_header    columns[MAX_SIZE];
+    size_t      columnsSize = 0;
+
     memset(columns, 0, sizeof(columns));
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
