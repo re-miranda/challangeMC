@@ -288,19 +288,3 @@ void    freeColumns(s_header columns[], size_t columnsSize) {
     }
     return ;
 }
-
-char    *getCsvLine(FILE *stream) {
-    char        *line;
-    size_t      len;
-    ssize_t     readBytes;
-
-    line = NULL;
-    len = 0;
-    readBytes = getline(&line, &len, stream);
-    if (readBytes <= 0) {
-        if (line)
-            free(line);
-        return (NULL);
-    }
-    return (line);
-}

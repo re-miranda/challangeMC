@@ -30,8 +30,6 @@ int     assertFilterAllows( const char cell[], char const filter[]);
 
 int     assertFilterOperatorIsValid(char filterTail[]);
 
-char    *getCsvLine(FILE *stream);
-
 void    outputColumns(s_header columns[], size_t columnsSize);
 
 void    freeColumns(s_header columns[], size_t columnsSize);
