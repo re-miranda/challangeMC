@@ -71,7 +71,9 @@ int assertFilterAllows( const char cell[], char const filter[]) {
     char        *filterContextPtr;
     char        *singleFilter;
     int         cmpResult;
+    int         allow_flag;
 
+    allow_flag = 1;
     if (filter == NULL)
         return (1);
     filterCopy = strdup(filter);
@@ -84,16 +86,16 @@ int assertFilterAllows( const char cell[], char const filter[]) {
         cmpResult = strcmp(cell, singleFilter + 1);
         if (*singleFilter == '=') {
             if (cmpResult != 0)
-                return (0);
+                allow_flag = 0;
         } else if (*singleFilter == '>') {
             if (cmpResult <= 0)
-                return (0);
+                allow_flag = 0;
         } else if (*singleFilter == '<') {
             if (cmpResult >= 0)
-                return (0);
+                allow_flag = 0;
         }
         singleFilter = strtok_r(NULL, ",", &filterContextPtr);
     }
     free(filterCopy);
-    return (1);
+    return (allow_flag);
 }
