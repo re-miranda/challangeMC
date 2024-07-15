@@ -52,8 +52,8 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
 int assertIsSelectedHeader( const char header[], const char selectedColumns[] ) {
     char    *searchResult;
 
-    if (selectedColumns == NULL)
-        return (0);
+    if (selectedColumns == NULL || selectedColumns[0] == 0)
+        return (1);
     searchResult = strstr(selectedColumns, header);
     if (searchResult == NULL)
         return (0);
