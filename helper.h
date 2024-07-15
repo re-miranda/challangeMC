@@ -26,4 +26,8 @@ int     assertIsSelectedHeader( const char header[], const char selectedColumns[
 
 int     assertFilterAllows( const char cell[], char const filter[]);
 
+void    outputColumns(s_header columns[], size_t columnsSize);
+
+void    freeColumns(s_header columns[], size_t columnsSize);
+
 #endif

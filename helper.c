@@ -42,7 +42,8 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
         }
         cell = strtok(NULL, "\n");
     }
-    free(rowFilterDefinitionsCopy);
+    if (rowFilterDefinitionsCopy)
+        free(rowFilterDefinitionsCopy);
     return ;
 }
 
@@ -93,6 +94,33 @@ int assertFilterAllows( const char cell[], char const filter[]) {
         }
         singleFilter = strtok_r(NULL, ",", &filterContextPtr);
     }
-    free(filterCopy);
+    if (filterCopy)
+        free(filterCopy);
     return (allowFlag);
+}
+
+void    outputColumns(s_header columns[], size_t columnsSize) {
+    int         firstOutputFlag;
+
+    firstOutputFlag = 1;
+    for (size_t in = 0; in < columnsSize; ++in) {
+        if (columns[in].selected == 1) {
+            if (firstOutputFlag != 1)
+                printf(",");
+            printf("%s", columns[in].name);
+            firstOutputFlag = 0;
+        }
+    }
+    printf("\n");
+    return ;
+}
+
+void    freeColumns(s_header columns[], size_t columnsSize) {
+    for (size_t in = 0; in < columnsSize; ++in) {
+        if (columns[in].name)
+            free(columns[in].name);
+        if (columns[in].filter)
+            free(columns[in].filter);
+    }
+    return ;
 }
