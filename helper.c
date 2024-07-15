@@ -4,46 +4,43 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
     char    *searchResult;
     char    *rowFilterDefinitionsCopy;
     char    *cell;
-    int     found_flag;
-
+    int     foundFlag;
     FILE    *outputLine;
     size_t  outputLineLen;
-    char    *previus_value;
-
+    char    *previusValue;
 
     if (rowFilterDefinitions == NULL)
         return ;
     rowFilterDefinitionsCopy = strdup(rowFilterDefinitions);
     if (rowFilterDefinitionsCopy == NULL)
         return ;
-    cell  = strtok(rowFilterDefinitionsCopy, "\n");
+    cell = strtok(rowFilterDefinitionsCopy, "\n");
     while (cell) {
-        found_flag = 0;
-        for ( s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
+        foundFlag = 0;
+        for (s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
             searchResult = strstr(cell, inColumn->name);
             if (searchResult != NULL \
                 && strchr("=><", *(searchResult + strlen(inColumn->name))) != NULL) {
-                previus_value = inColumn->filter;
+                previusValue = inColumn->filter;
                 inColumn->filter = NULL;
                 outputLineLen = 0;
                 outputLine = open_memstream(&inColumn->filter, &outputLineLen);
-                if (previus_value) {
-                    fputs(previus_value, outputLine);
-                    free(previus_value);
+                if (previusValue) {
+                    fputs(previusValue, outputLine);
+                    free(previusValue);
                 }
                 fprintf(outputLine, "%s,", cell + strlen(inColumn->name));
                 fclose(outputLine);
-                found_flag = 1;
+                foundFlag = 1;
                 break ;
             }
         }
-        if (found_flag == 0) {
+        if (foundFlag == 0) {
             write(2, &"Invalid filter: ", 16);
             write(2, cell, strlen(cell));
             write(2, &"\n", 1);
-
         }
-        cell  = strtok(NULL, "\n");
+        cell = strtok(NULL, "\n");
     }
     free(rowFilterDefinitionsCopy);
     return ;
@@ -71,9 +68,9 @@ int assertFilterAllows( const char cell[], char const filter[]) {
     char        *filterContextPtr;
     char        *singleFilter;
     int         cmpResult;
-    int         allow_flag;
+    int         allowFlag;
 
-    allow_flag = 1;
+    allowFlag = 1;
     if (filter == NULL)
         return (1);
     filterCopy = strdup(filter);
@@ -86,16 +83,16 @@ int assertFilterAllows( const char cell[], char const filter[]) {
         cmpResult = strcmp(cell, singleFilter + 1);
         if (*singleFilter == '=') {
             if (cmpResult != 0)
-                allow_flag = 0;
+                allowFlag = 0;
         } else if (*singleFilter == '>') {
             if (cmpResult <= 0)
-                allow_flag = 0;
+                allowFlag = 0;
         } else if (*singleFilter == '<') {
             if (cmpResult >= 0)
-                allow_flag = 0;
+                allowFlag = 0;
         }
         singleFilter = strtok_r(NULL, ",", &filterContextPtr);
     }
     free(filterCopy);
-    return (allow_flag);
+    return (allowFlag);
 }

@@ -2,52 +2,48 @@
 #include "helper.h"
 
 void processCsv( const char csvData[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
-    FILE    *tmp_file;
+    FILE    *tmpFile;
 
-    tmp_file = fopen("./tmp", "w+");
-    if ( tmp_file == NULL )
+    tmpFile = fopen("./tmp", "w+");
+    if (tmpFile == NULL)
         return ;
-    fputs(csvData, tmp_file);
-    fseek(tmp_file, 0, SEEK_SET);
+    fputs(csvData, tmpFile);
+    fseek(tmpFile, 0, SEEK_SET);
     processCsvFile("./tmp", selectedColumns, rowFilterDefinitions);
-    fclose(tmp_file);
+    fclose(tmpFile);
     remove("./tmp");
     return ;
 }
 
 void processCsvFile( const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[] ) {
     FILE    *stream;
-
     char    *line;
     size_t  len;
     ssize_t readBytes;
-
-    int         first_output_flag;
+    int         firstOutputFlag;
     s_header    columns[MAX_SIZE];
-    size_t      columns_size;
+    size_t      columnsSize;
 
     stream = fopen(csvFilePath, "r");
-    if (stream == NULL){
-        write(1, &"Failed to open file\n", 20);
+    if (stream == NULL) {
         return ;
     }
-
     line = NULL;
     len = 0;
     memset(columns, 0, sizeof(columns));
     readBytes = getline(&line, &len, stream);
     if (readBytes > 0) {
-        columns_size = processCsvColumns(line, columns, selectedColumns);
-        if (columns_size > 0) {
+        columnsSize = processCsvColumns(line, columns, selectedColumns);
+        if (columnsSize > 0) {
             getRowFilterDefinitions(columns, rowFilterDefinitions);
             readBytes = getline(&line, &len, stream);
-            first_output_flag = 1;
-            for (size_t in = 0; in < columns_size; ++in) {
+            firstOutputFlag = 1;
+            for (size_t in = 0; in < columnsSize; ++in) {
                 if (columns[in].selected == 1) {
-                    if (first_output_flag != 1)
+                    if (firstOutputFlag != 1)
                         printf(",");
                     printf("%s", columns[in].name);
-                    first_output_flag = 0;
+                    firstOutputFlag = 0;
                 }
             }
             printf("\n");
@@ -56,7 +52,7 @@ void processCsvFile( const char csvFilePath[], const char selectedColumns[], con
                 readBytes = getline(&line, &len, stream);
             }
         }
-        for (size_t in = 0; in < columns_size; ++in) {
+        for (size_t in = 0; in < columnsSize; ++in) {
             free(columns[in].name);
             if (columns[in].filter)
                 free(columns[in].filter);
@@ -76,8 +72,8 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     size_t  outputLineLen;
     char    *cell;
     size_t  headerIndex;
-    int     first_run_flag;
-    int     discart_flag;
+    int     firstRunFlag;
+    int     discartFlag;
 
     if (!csvLine)
         return ;
@@ -91,22 +87,22 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     cell  = strtok_r(csvLineCopy, ",", &csvLineCopyContextPtr);
     headerIndex = 0;
-    first_run_flag = 1;
-    discart_flag = 0;
+    firstRunFlag = 1;
+    discartFlag = 0;
     while (cell) {
-        if ( columns[headerIndex].selected == 1 ) {
-            if ( !assertFilterAllows(cell, columns[headerIndex].filter) )
-                discart_flag = 1;
-            if (!first_run_flag)
+        if (columns[headerIndex].selected == 1) {
+            if (!assertFilterAllows(cell, columns[headerIndex].filter) )
+                discartFlag = 1;
+            if (!firstRunFlag)
                 fputs(",", outputLine);
-            first_run_flag = 0;
+            firstRunFlag = 0;
             fputs(cell, outputLine);
         }
         cell  = strtok_r(NULL, ",", &csvLineCopyContextPtr);
         ++headerIndex;
     }
     fclose(outputLine);
-    if (!discart_flag)
+    if (!discartFlag)
         if (outputLinePtr[0] != 0)
             printf("%s\n", outputLinePtr);
     if (cell)
@@ -119,8 +115,8 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
 }
 
 size_t    processCsvColumns(const char csvLine[], s_header columns[], const char selectedColumns[]) {
-    char  *csvLineCopy;
-    char  *cell;
+    char    *csvLineCopy;
+    char    *cell;
     size_t  index;
 
     if (!csvLine)
@@ -141,7 +137,7 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[], const char
         cell  = strtok(NULL, ",");
     }
     free(csvLineCopy);
-    if ( cell ) {
+    if (cell) {
         free(cell);
         return (-3);
     }
