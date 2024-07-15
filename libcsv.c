@@ -102,6 +102,7 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
 
 size_t    processCsvColumns(const char csvLine[], s_header columns[], const char selectedColumns[]) {
     char    *csvLineCopy;
+    char    *contextPtr;
     char    *cell;
     size_t  index;
 
@@ -111,7 +112,8 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[], const char
     if (!csvLineCopy)
         return (-1);
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
-    cell  = strtok(csvLineCopy, ",");
+    contextPtr = csvLineCopy;
+    cell  = strtok_r(csvLineCopy, ",", &contextPtr);
     index = 0;
     while (cell) {
         if (index >= MAX_SIZE)
@@ -120,7 +122,7 @@ size_t    processCsvColumns(const char csvLine[], s_header columns[], const char
         columns[index].selected = assertIsSelectedHeader(cell, selectedColumns);
         columns[index].filter = NULL;
         index++;
-        cell  = strtok(NULL, ",");
+        cell  = strtok_r(NULL, ",", &contextPtr);
     }
     free(csvLineCopy);
     if (cell) {
