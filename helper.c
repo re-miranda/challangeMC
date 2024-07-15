@@ -64,7 +64,7 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     char    *outputLinePtr;
     char    *contextPtr;
     size_t  outputLineLen;
-    char    *cell;
+    char    *token;
     size_t  headerIndex;
     int     firstRunFlag;
     int     discartFlag;
@@ -72,27 +72,29 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
     csvLineCopy = strdup(csvLine);
     if (!csvLineCopy)
         return ;
-    contextPtr = csvLineCopy;
+
     outputLine = open_memstream(&outputLinePtr, &outputLineLen);
     if (!outputLine) {
         free (csvLineCopy);
         return ;
     }
+
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
-    cell  = strtok_r(csvLineCopy, ",", &contextPtr);
+    contextPtr = csvLineCopy;
+    token  = strtok_r(csvLineCopy, ",", &contextPtr);
     headerIndex = 0;
     firstRunFlag = 1;
     discartFlag = 0;
-    while (cell) {
+    while (token) {
         if (columns[headerIndex].selected == 1) {
-            if (!assertFilterAllows(cell, columns[headerIndex].filter) )
+            if (!assertFilterAllows(token, columns[headerIndex].filter) )
                 discartFlag = 1;
             if (!firstRunFlag)
                 fputs(",", outputLine);
             firstRunFlag = 0;
-            fputs(cell, outputLine);
+            fputs(token, outputLine);
         }
-        cell  = strtok_r(NULL, ",", &contextPtr);
+        token  = strtok_r(NULL, ",", &contextPtr);
         ++headerIndex;
     }
     fclose(outputLine);
@@ -107,26 +109,25 @@ void    processCsvLine( const char csvLine[], s_header columns[]) {
 size_t    processCsvColumns(const char csvLine[], s_header columns[], const char selectedColumns[]) {
     char    *csvLineCopy;
     char    *contextPtr;
-    char    *cell;
+    char    *token;
     size_t  index;
 
-    if (!csvLine)
-        return (-1);
     csvLineCopy = strdup(csvLine);
     if (!csvLineCopy)
         return (-1);
+
     csvLineCopy[strcspn(csvLineCopy, "\n")] = 0;
     contextPtr = csvLineCopy;
-    cell  = strtok_r(csvLineCopy, ",", &contextPtr);
+    token  = strtok_r(csvLineCopy, ",", &contextPtr);
     index = 0;
-    while (cell) {
+    while (token) {
         if (index >= MAX_SIZE)
             break ;
-        columns[index].name = strdup(cell);
-        columns[index].selected = assertIsSelectedHeader(cell, selectedColumns);
+        columns[index].name = strdup(token);
+        columns[index].selected = assertIsSelectedHeader(token, selectedColumns);
         columns[index].filter = NULL;
         index++;
-        cell  = strtok_r(NULL, ",", &contextPtr);
+        token  = strtok_r(NULL, ",", &contextPtr);
     }
     free(csvLineCopy);
     if (index >= MAX_SIZE)
@@ -138,7 +139,7 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
     char    *searchResult;
     char    *rowFilterDefinitionsCopy;
     char    *contextPtr;
-    char    *cell;
+    char    *token;
     int     foundFlag;
     FILE    *outputLine;
     size_t  outputLineLen;
@@ -146,15 +147,17 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
 
     if (rowFilterDefinitions == NULL)
         return ;
+
     rowFilterDefinitionsCopy = strdup(rowFilterDefinitions);
     if (rowFilterDefinitionsCopy == NULL)
         return ;
+
     contextPtr = rowFilterDefinitionsCopy;
-    cell = strtok_r(rowFilterDefinitionsCopy, "\n", &contextPtr);
-    while (cell) {
+    token = strtok_r(rowFilterDefinitionsCopy, "\n", &contextPtr);
+    while (token) {
         foundFlag = 0;
         for (s_header *inColumn = Columns; inColumn->name != NULL; ++inColumn ) {
-            searchResult = strstr(cell, inColumn->name);
+            searchResult = strstr(token, inColumn->name);
             if (searchResult != NULL \
                 && assertFilterOperatorIsValid(searchResult + strlen(inColumn->name))) {
                 previusValue = inColumn->filter;
@@ -165,7 +168,7 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
                     fputs(previusValue, outputLine);
                     free(previusValue);
                 }
-                fprintf(outputLine, "%s,", cell + strlen(inColumn->name));
+                fprintf(outputLine, "%s,", token + strlen(inColumn->name));
                 fclose(outputLine);
                 foundFlag = 1;
                 break ;
@@ -173,10 +176,10 @@ void    getRowFilterDefinitions(s_header Columns[], const char rowFilterDefiniti
         }
         if (foundFlag == 0) {
             write(2, &"Invalid filter: ", 16);
-            write(2, cell, strlen(cell));
+            write(2, token, strlen(token));
             write(2, &"\n", 1);
         }
-        cell = strtok_r(NULL, "\n", &contextPtr);
+        token = strtok_r(NULL, "\n", &contextPtr);
     }
     free(rowFilterDefinitionsCopy);
     return ;
@@ -187,6 +190,7 @@ int assertIsSelectedHeader( const char header[], const char selectedColumns[] ) 
 
     if (selectedColumns == NULL || selectedColumns[0] == 0)
         return (1);
+
     searchResult = strstr(selectedColumns, header);
     if (searchResult == NULL)
         return (0);
@@ -199,7 +203,7 @@ int assertIsSelectedHeader( const char header[], const char selectedColumns[] ) 
     return (1);
 }
 
-int assertFilterAllows( const char cell[], char const filter[]) {
+int assertFilterAllows( const char token[], char const filter[]) {
     char        *filterCopy;
     char        *contextPtr;
     char        *singleFilter;
@@ -207,17 +211,19 @@ int assertFilterAllows( const char cell[], char const filter[]) {
     int         cmpResult2;
     int         allowFlag;
 
-    allowFlag = 1;
     if (filter == NULL)
         return (1);
+
     filterCopy = strdup(filter);
     if (filterCopy == NULL)
         return (1);
+
+    allowFlag = 1;
     contextPtr = filterCopy;
     singleFilter  = strtok_r(filterCopy, ",", &contextPtr);
     while (singleFilter) {
-        cmpResult = strcmp(cell, singleFilter + 1);
-        cmpResult2 = strcmp(cell, singleFilter + 2);
+        cmpResult = strcmp(token, singleFilter + 1);
+        cmpResult2 = strcmp(token, singleFilter + 2);
         if (singleFilter[0] == '=') {
             if (cmpResult != 0)
                 allowFlag = 0;
