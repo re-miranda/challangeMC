@@ -1,41 +1,85 @@
-# Biblioteca processadora de CSV libcsv.so
+# Biblioteca para processar CSV
 
-Esta biblioteca implementa funções de processamento de CSV aplicando seleção de colunas e filtros de comparação de valor. É capaz de receber dados de string e arquivos.
+Esta biblioteca implementa funções de processamento de CSV aplicando seleção de colunas e filtros de comparação de valor.
+Capaz de receber dados vindos de string ou arquivos.
+
+## Instalação
+
+Para instalar a biblioteca:
+
+* Compile a biblioteca:
+    ```sh
+    make
+    ```
+
+* Compile sem o make (opcional):
+    ```sh
+    gcc -shared -o libcsv.so libcsv.c helper.c
+    ```
+
+## Utilização
+
+Inclua o arquivo header libcsv.h em seu código font e faça link com o arquivo libcsv.so gerado:
 
 ```c
-/**
- * Process the CSV data by applying filters and selecting columns.
- *
- * @param csv The CSV data to be processed.
- * @param selectedColumns The columns to be selected from the CSV data.
- * @param rowFilterDefinitions The filters to be applied to the CSV data.
- *
- * @return void
- */
-void processCsv(const char csvData[], const char selectedColumns[], const char rowFilterDefinitions[]);
-
-/**
- * Process the CSV file by applying filters and selecting columns.
- *
- * @param csvFilePath The path to the CSV file to be processed.
- * @param selectedColumns The columns to be selected from the CSV data.
- * @param rowFilterDefinitions The filters to be applied to the CSV data.
- *
- * @return void
- */
-void processCsvFile(const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[]);
+#include "libcsv.h"
 ```
 
-# Instalação
+### Funções
 
-Compile os arquivos utilizando o comando:
-gcc -shared -o libcsv.so libcsv.c helper.c
+#### `void processCsv(const char csv[], const char selectedColumns[], const char rowFilterDefinitions[])`
 
-# Utilização
+Process the CSV data by applying filters and selecting columns.
 
-Com a compilação bem sucedida, será gerado um arquivo libcsv.so. Utilize-o incluindo o header libcsv.h em seu projeto e também o arquivo gerado libcsv.so ao compilar seu projeto.
+- **Parameters**:
+  - `csv`: The CSV data to be processed.
+  - `selectedColumns`: The columns to be selected from the CSV data.
+  - `rowFilterDefinitions`: The filters to be applied to the CSV data.
 
-Exemplo:
+#### `void processCsvFile(const char csvFilePath[], const char selectedColumns[], const char rowFilterDefinitions[])`
+
+Process the CSV data by applying filters and selecting columns from a file.
+
+- **Parameters**:
+  - `csvFilePath`: The file path of the CSV to be processed.
+  - `selectedColumns`: The columns to be selected from the CSV data.
+  - `rowFilterDefinitions`: The filters to be applied to the CSV data.
+
+## Exemplos
+
+### Exemplo 1: Processar dados CSV de uma String
+
+```c
+#include "libcsv.h"
+
+int main() {
+    const char *csvData = "Name,Age,Location\nJohn,30,USA\nJane,25,UK\n";
+    const char *selectedColumns = "Name,Location";
+    const char *rowFilterDefinitions = "Age>20";
+
+    processCsv(csvData, selectedColumns, rowFilterDefinitions);
+
+    return 0;
+}
+```
+
+### Exemplo 2: Processar dados CSV de um Arquivo
+
+```c
+#include "libcsv.h"
+
+int main() {
+    const char *csvFilePath = "data.csv";
+    const char *selectedColumns = "Name,Location";
+    const char *rowFilterDefinitions = "Age>20";
+
+    processCsvFile(csvFilePath, selectedColumns, rowFilterDefinitions);
+
+    return 0;
+}
+```
+
+### Exemplo 3:
 
 Dado o csv:
 ```csv
